@@ -68,6 +68,18 @@
             android:layout_marginTop="4dp"
             android:background="@drawable/btn_log_in_backgroud"
             android:text="@string/login" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/forgot_password"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:onClick="forgotPassword"
+            android:layout_marginLeft="200dp"
+            android:layout_marginStart="200dp" />
     </LinearLayout>
 
 

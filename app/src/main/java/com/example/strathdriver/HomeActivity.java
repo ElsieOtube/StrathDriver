@@ -37,6 +37,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -71,6 +72,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView navigationView;
     private NavController navController;
 
+    FirebaseAuth firebaseAuth;
+    FirebaseUser user;
     private DatabaseReference onlineRef, currentUserRef;
     private StorageReference storageReference;
     private FirebaseStorage firebaseStorage;
@@ -85,6 +88,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_drawer_home);
         Common.userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         firebaseStorage = FirebaseStorage.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
         storageReference = firebaseStorage.getReference();
         homeViewModel = new HomeViewModel();
         initDrawer();
@@ -204,11 +208,48 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_sign_out:
                 signOut();
                 break;
+            case R.id.nav_delete_account:
+                deleteAccount();
+                break;
             default:
                 navController.navigate(id);
         }
         drawer.closeDrawer(GravityCompat.START);
         return false;
+    }
+
+    private void deleteAccount() {
+        AlertDialog.Builder dialogDelete = new AlertDialog.Builder(HomeActivity.this);
+        dialogDelete.setTitle("Are you sure?");
+        dialogDelete.setMessage("Deleting your account will result in completely removing your account from the system and you won't be able to access the app");
+        dialogDelete.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Toast.makeText(HomeActivity.this, "DELETING...", Toast.LENGTH_SHORT).show();
+                        if(task.isSuccessful()){
+                            Toast.makeText(HomeActivity.this, "Account deleted", Toast.LENGTH_LONG).show();
+                                Intent deleteCustomer = new Intent(HomeActivity.this,LoginActivity.class);
+                            deleteCustomer.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            deleteCustomer.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(deleteCustomer);
+                        }else{
+                            Toast.makeText(HomeActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            }
+        });
+        dialogDelete.setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog alertDialog = dialogDelete.create();
+        alertDialog.show();
     }
 
     private void signOut() {

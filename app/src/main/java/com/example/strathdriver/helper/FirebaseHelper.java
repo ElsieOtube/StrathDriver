@@ -16,8 +16,10 @@ import com.example.strathdriver.R;
 import com.example.strathdriver.common.Common;
 import com.example.strathdriver.model.firebase.User;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -150,6 +152,22 @@ public class FirebaseHelper {
                                 user.setPassword(etPassword.getText().toString());
                                 user.setPhone(etPhone.getText().toString());
                                 user.setCarType("UberX");
+
+                                firebaseAuth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+
+                                        if(task.isSuccessful()){
+                                            Snackbar.make(root, activity.getResources().getString(R.string.registered), Snackbar.LENGTH_SHORT).show();
+                                            //Intent profIntent = new Intent(FirebaseHelper.this, CustomerMap.class);
+                                            //profIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                            //startActivity(profIntent);
+                                        }else{
+
+                                        }
+
+                                    }
+                                });
 
                                 users.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                         .setValue(user)
